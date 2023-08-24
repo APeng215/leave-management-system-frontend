@@ -3,9 +3,19 @@ import FetchHelper from '../js/util/FetchHelper';
 export default {
     mounted() {
         this.requestLeaveInfos();
+        this.requestUserInfo();
     },
     data() {
         return {
+            user: {
+                name: null,
+                username: null,
+                id: null,
+                sex: null,
+                department: null,
+                duty: null,
+
+            },
             leaveRequest: {
                 type: null,
                 startDate: null, // Add a property to store the start date
@@ -15,22 +25,27 @@ export default {
             },
             leaveRequestTable: {
                 fields: [
-                    { key: "name", lable: "申请人" },
+                    { key: "name", label: "申请人" },
                     { key: "username", label: "学号/工号" },
-                    { key: "type", lable: "请假类型" },
+                    { key: "type", label: "请假类型" },
                     { key: "beginDate", label: "开始日期" },
                     { key: "endDate", label: "结束日期" },
                     { key: "reason", label: "请假原因" },
                     { key: "approvalStatus", label: "审批状态" },
-                    { key: "createTime", lable: "创建时间" },
-                    { key: "updateTime", lable: "更新时间" }
+                    { key: "createTime", label: "创建时间" },
+                    { key: "updateTime", label: "更新时间" },
+                    { key: "operation", label: "操作"}
                 ],
                 items: []
             }
         };
     },
     methods: {
-
+        async requestUserInfo() {
+            const result = await FetchHelper.fetch("GET", "http://localhost:8081/backend/requestUserInfo");
+            this.user = result;
+            console.log(this.user);
+        },
         calculateDuration() {
             // Get the selected start and end dates from the input fields
             var start = new Date(this.leaveRequest.startDate);
@@ -51,7 +66,7 @@ export default {
             this.leaveRequest.duration = daysDiff + 1;
         },
         async requestLeaveInfos() {
-            const result = await FetchHelper.fetch("GET", "http://localhost:8081/backend/requestLeaveInfo", "");
+            const result = await FetchHelper.fetch("GET", "http://localhost:8081/backend/requestLeaveInfo");
             for (let item of result) {
                 this.leaveRequestTable.items.push(item);
             }
@@ -61,6 +76,7 @@ export default {
             this.$refs.modalCloseButton.click();
             // Send logging information
             const result = await FetchHelper.fetch("POST", "http://localhost:8081/backend/leaveRequest", this.leaveRequest);
+            this.requestLeaveInfos();
         },
     }
 }
@@ -69,7 +85,7 @@ export default {
 
 <template>
     <div class="d-flex justify-content-center align-items-center flex-column vh-100">
-        <div>
+        <div class="m-3">
             <!-- Button trigger modal -->
             <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#leaveRequest">
                 申请请假
@@ -135,8 +151,16 @@ export default {
             </div>
         </div>
 
-        <div>
-            <b-table :fields="leaveRequestTable.fields" :items="leaveRequestTable.items" responsive="sm">
+        <div class="m-3">
+            <b-table responsive bordered striped hover :fields="leaveRequestTable.fields" :items="leaveRequestTable.items">
+                <template #cell(operation)="data">
+                    <button class="btn btn-success" :username="date.item.username" v-if="user.duty == '辅导员'">
+                        批准
+                    </button>
+                    <button class="btn btn-danger" :username="date.item.username" v-if="user.username == data.item.username">
+                        撤销
+                    </button>
+                </template>
             </b-table>
         </div>
 </div></template>
