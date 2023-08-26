@@ -34,17 +34,24 @@ export default {
                     { key: "approvalStatus", label: "审批状态" },
                     { key: "createTime", label: "创建时间" },
                     { key: "updateTime", label: "更新时间" },
-                    { key: "operation", label: "操作"}
+                    { key: "operation", label: "操作" }
                 ],
                 items: []
             }
         };
     },
     methods: {
+        async requestRevoke(event) {
+            const targetUsername = event.target.getAttribute("data-username");
+            const result = FetchHelper.fetch("POST", "http://localhost:8081/backend/requestLeaveOperation", {
+                opration: "revoke",
+                targetUsername: targetUsername
+            });
+            this.requestLeaveInfos();
+        },
         async requestUserInfo() {
             const result = await FetchHelper.fetch("GET", "http://localhost:8081/backend/requestUserInfo");
             this.user = result;
-            console.log(this.user);
         },
         calculateDuration() {
             // Get the selected start and end dates from the input fields
@@ -67,6 +74,7 @@ export default {
         },
         async requestLeaveInfos() {
             const result = await FetchHelper.fetch("GET", "http://localhost:8081/backend/requestLeaveInfo");
+            this.leaveRequestTable.items = [];
             for (let item of result) {
                 this.leaveRequestTable.items.push(item);
             }
@@ -154,10 +162,11 @@ export default {
         <div class="m-3">
             <b-table responsive bordered striped hover :fields="leaveRequestTable.fields" :items="leaveRequestTable.items">
                 <template #cell(operation)="data">
-                    <button class="btn btn-success" :username="date.item.username" v-if="user.duty == '辅导员'">
+                    <button class="btn btn-success" :data-username="data.item.username" v-if="user.duty == '辅导员'">
                         批准
                     </button>
-                    <button class="btn btn-danger" :username="date.item.username" v-if="user.username == data.item.username">
+                    <button class="btn btn-danger" :data-username="data.item.username"
+                        v-if="user.username == data.item.username" @click="requestRevoke($event)">
                         撤销
                     </button>
                 </template>
