@@ -1,5 +1,6 @@
 <script>
 import { router } from '../js/router'
+import FetchHelper from '../js/util/FetchHelper'
 export default {
     props: {
         logged: {
@@ -15,6 +16,10 @@ export default {
             else {
                 router.push("/login")
             }
+        },
+        onLogoutClicked() {
+            FetchHelper.fetch("GET", "http://localhost:8081/backend/logout");
+            this.$emit("logout");
         }
     }
 }
@@ -29,6 +34,7 @@ export default {
             </div>
             <div class="nav-item d-flex ms-auto">
                 <router-link class="nav-link text-white" v-if="!logged" to="/login">登录</router-link>
+                <a class="nav-link text-white" href="" v-if="logged" @click="onLogoutClicked">注销</a>
             </div>
         </div>
     </nav>

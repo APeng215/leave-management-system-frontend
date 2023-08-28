@@ -17,6 +17,10 @@ export default {
         onLoginSucceed() {
             this.logged = true;
             router.push("/home")
+        },
+        onLogout() {
+            this.logged = false;
+            router.push("/login")
         }
     }
 }
@@ -26,5 +30,5 @@ export default {
 
 <template>
     <TopNav :logged="logged"></TopNav>
-    <router-view @login-succeed="onLoginSucceed"></router-view>
+    <router-view @login-succeed="onLoginSucceed" @logout="onLogout"></router-view>
 </template>
