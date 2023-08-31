@@ -41,6 +41,14 @@ export default {
         };
     },
     methods: {
+        async requestReject(event) {
+            const targetUsername = event.target.getAttribute("data-username");
+            const result = await FetchHelper.fetch("POST", "http://localhost:8081/backend/requestLeaveOperation", {
+                operation: "REJECT",
+                targetUsername: targetUsername
+            });
+            this.requestLeaveInfos();
+        },
         async requestRevoke(event) {
             const targetUsername = event.target.getAttribute("data-username");
             const result = await FetchHelper.fetch("POST", "http://localhost:8081/backend/requestLeaveOperation", {
@@ -223,13 +231,22 @@ export default {
                         :items="leaveRequestTable.items">
                         <template #cell(operation)="data">
                             <button class="btn btn-success mx-1" :data-username="data.item.username"
-                                v-if="user.duty == '辅导员' && data.item.approvalStatus != '已批准'"
+                                v-if="user.duty == '辅导员' && data.item.approvalStatus == '待审批'"
                                 @click="requestApprove($event)">
                                 批准
+                            </button>
+                            <button class="btn btn-danger mx-1" :data-username="data.item.username"
+                                v-if="user.duty == '辅导员' && data.item.approvalStatus == '待审批'"
+                                @click="requestReject($event)">
+                                拒绝
                             </button>
                             <button class="btn btn-success mx-1" :data-username="data.item.username"
                                 v-if="user.duty == '辅导员' && data.item.approvalStatus == '已批准'" disabled>
                                 已批准
+                            </button>
+                            <button class="btn btn-danger mx-1" :data-username="data.item.username"
+                                v-if="user.duty == '辅导员' && data.item.approvalStatus == '已拒绝'" disabled>
+                                已拒绝
                             </button>
                             <button class="btn btn-danger mx-1" :data-username="data.item.username"
                                 v-if="user.username == data.item.username" @click="requestRevoke($event)">
