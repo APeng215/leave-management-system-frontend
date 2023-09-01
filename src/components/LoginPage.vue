@@ -18,31 +18,31 @@ export default {
       // Send logging information
       const result = await FetchHelper.fetch("POST", "http://localhost:8081/backend/login", this.account);
       console.log("Success:", result);
-      
-        if(result.loginSucceed){
-          this.$emit("loginSucceed");
-          this.loginFailed = false;
-        }
-        
+
+      if (result.loginSucceed) {
+        this.$emit("loginSucceed");
+        this.loginFailed = false;
+      }
+
     },
     async login() {
       // Send logging information
       const result = await FetchHelper.fetch("POST", "http://localhost:8081/backend/login", this.account);
       console.log("Success:", result);
-      
-        if(result.loginSucceed){
-          this.$emit("loginSucceed");
-          this.loginFailed = false;
-        }
-        else{
-          this.loginFailed = true;
-        }
-  },
-  onInputFocused() {
-    this.loginFailed = false;
-  }
 
-}
+      if (result.loginSucceed) {
+        this.$emit("loginSucceed");
+        this.loginFailed = false;
+      }
+      else {
+        this.loginFailed = true;
+      }
+    },
+    onInputFocused() {
+      this.loginFailed = false;
+    }
+
+  }
 }
 </script>
 

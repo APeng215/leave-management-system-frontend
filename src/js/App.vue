@@ -29,6 +29,6 @@ export default {
 
 
 <template>
-    <TopNav :logged="logged"></TopNav>
+    <TopNav :logged="logged" @logout="onLogout"></TopNav>
     <router-view @login-succeed="onLoginSucceed" @logout="onLogout"></router-view>
 </template>

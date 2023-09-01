@@ -173,7 +173,7 @@ export default {
                                         aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form class="needs-validation" ref="requestForm" id="requestForm"
+                                    <form class="" id="requestForm"
                                         @submit.prevent="submitLeaveRequest">
                                         <div class="input-group mb-3">
                                             <label class="input-group-text" for="inputRequestType">请假类型</label>
@@ -210,9 +210,6 @@ export default {
                                             <span class="input-group-text">请假原因</span>
                                             <textarea class="form-control" v-model="leaveRequest.reason"
                                                 required></textarea>
-                                            <div class="invalid-feedback">
-                                                请输入请假原因
-                                            </div>
                                         </div>
                                     </form>
                                 </div>
