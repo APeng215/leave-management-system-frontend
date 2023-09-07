@@ -20,6 +20,7 @@
     "@popperjs/core": "^2.11.8",
     "@vue/compat": "^3.3.4",
     "bootstrap": "^5.3.0",
+    "bootstrap-icons": "^1.10.5",
     "bootstrap-vue": "^2.23.1",
     "vue": "^3.2.47",
     "vue-router": "^4.2.4"

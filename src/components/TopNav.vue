@@ -1,4 +1,5 @@
 <script>
+import { BButton } from 'bootstrap-vue';
 import { router } from '../js/router'
 import FetchHelper from '../js/util/FetchHelper'
 export default {
@@ -10,6 +11,9 @@ export default {
     },
     data() {
         return {
+            user:{
+                name: ""
+            },
             oldPassword: "",
             newPassword: "",
             newPasswordForConfirm: "",
@@ -70,49 +74,31 @@ export default {
         onChangingPasswordInputFocused() {
             this.passwordUnmatched = false;
             this.passwordTooEasy = false;
+        },
+        async requestUserInfo() {
+            const result = await FetchHelper.fetch("GET", "http://localhost:8081/backend/requestUserInfo");
+            this.user.name = result.name;
+        },
+        goToPersonPage() {
+            this.$router.push("/person");
         }
     }
 }
 </script>
 <template>
-    <nav class="navbar bg-primary fixed-top" data-bs-theme="dark">
+    <nav class="navbar fixed-top shadow" data-bs-theme="dark">
         <div class="container-fluid">
-            <a href="#" class="navbar-brand">请假管理系统</a>
-            <div class="">
-                <a class="nav-link text-white" @click="onMainPageClicked" href="#">主页</a>
-            </div>
+            <a href="#" class="navbar-brand"><i class="bi bi-window-sidebar"></i>  请假管理系统</a>
             <div class="nav-item d-flex ms-auto">
                 <router-link class="nav-link text-white" v-if="!logged" to="/login">登录</router-link>
-                <a class="nav-link text-white me-3" href="#" id="show-btn"
-                    @click="$bvModal.show('changePasswordModal')" v-if="logged">修改密码</a>
-                <b-modal id="changePasswordModal" cancel-title="取消" ok-title="确定修改" title="修改密码" @ok="tryChangePassword" centered>
-                    <b-form id="requestForm">
-                        <b-input-group class="mb-3" prepend="旧密码">
-                            <b-form-input type="password" v-model="oldPassword" :state="oldPasswordState"></b-form-input>
-                        </b-input-group>
-                        <div class="text-danger mb-3 d-flex justify-content-center" v-if="!oldPasswordState">
-                            请输入旧密码
-                        </div>
-                        <b-input-group class="mb-3 flex-colunm" prepend="新密码">
-                            <b-form-input type="password" v-model="newPassword" :state="newPasswordState" @focus="onChangingPasswordInputFocused"></b-form-input>
-                        </b-input-group>
-                        <div class="text-danger mb-3 d-flex justify-content-center" v-if="!newPasswordState">
-                            新密码长度至少为6
-                        </div>
-
-                        <b-input-group class="mb-3" prepend="确认新密码" :invalid-feedback="newPasswordForConfirmInvalidFeedback">
-                            <b-form-input type="password" v-model="newPasswordForConfirm" :state="newPasswordForConfirmState" @focus="onChangingPasswordInputFocused"></b-form-input>
-                        </b-input-group>
-                        <div class="text-danger d-flex justify-content-center" v-if="passwordUnmatched">
-                            两次新密码不一致！
-                        </div>
-
-                    </b-form>
-
-                </b-modal>
-                <a class="nav-link text-white" href="" v-if="logged" @click="onLogoutClicked">注销</a>
+                <a class="nav-link text-white me-4" href="" v-if="logged" @click.prevent="goToPersonPage"><i class="bi bi-person-circle"></i>  {{this.user.name}}</a>
+                <a class="nav-link text-white" href="" v-if="logged" @click="onLogoutClicked">注销  <i class="bi bi-box-arrow-right"></i></a>
             </div>
         </div>
     </nav>
 </template>
-  
+<style>
+.navbar {
+    background-color:rgb(28, 118, 198)
+}
+</style>

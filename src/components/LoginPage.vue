@@ -45,10 +45,19 @@ export default {
   }
 }
 </script>
+<style scoped>
+.root {
+  background: url("/static/login-background.jpg")
+}
+.white-background {
+    background-color: #ffffff;
+    /* White color */
+}
 
+</style>
 <template>
-  <div class="d-flex justify-content-center align-items-center vh-100">
-    <div class="border border-primary rounded p-4">
+  <div class="d-flex justify-content-center align-items-center vh-100 root">
+    <div class="border border-primary rounded p-4 white-background shadow">
       <form @submit.prevent="login">
         <div class="mb-3">
           <label class="form-label" for="inputUsername">学号/工号</label>
