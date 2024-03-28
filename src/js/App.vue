@@ -33,7 +33,7 @@ export default {
         },
         toManagePage() {
             router.push("/manage")
-        }
+        },
     },
     computed: {
 
@@ -53,12 +53,13 @@ export default {
 
 
 <template>
-<div class="root">
-    <TopNav :logged="logged" @logout="onLogout" ref="topNav"></TopNav>
-    <router-view @login-succeed="onLoginSucceed" @logout="onLogout"></router-view>
+    <div class="root d-flex align-items-center justify-content-center" :class="{ 'root-logged': logged }">
+        <TopNav :logged="logged" @logout="onLogout" ref="topNav"></TopNav>
+        <router-view @login-succeed="onLoginSucceed" @logout="onLogout"
+            @url-updated="this.$refs.topNav.updateImgUrl()"></router-view>
 
-</div>
-                
+    </div>
+
 
 
 
@@ -71,33 +72,44 @@ export default {
                 <a href="#" class="list-group-item list-group-item-action py-2 ripple" @click="toMainPage"
                     :class="{ 'active': isOnMainPage }">
                     <i class="fas fa-tachometer-alt fa-fw me-3"></i>
-                    <span><i class="bi bi-house-door-fill"></i>  主页</span>
+                    <span><i class="bi bi-house-door-fill"></i> 主页</span>
                 </a>
-                
+
                 <a href="#" class="list-group-item list-group-item-action py-2 ripple" @click="toPersonPage"
                     :class="{ 'active': isOnPersonPage }"><i class="fas fa-lock fa-fw me-3"></i>
-                    <span><i class="bi bi-person-lines-fill"></i>  个人信息</span></a>
-                
+                    <span><i class="bi bi-person-lines-fill"></i> 个人信息</span></a>
+
                 <a href="#" class="list-group-item list-group-item-action py-2 ripple" @click="toManagePage"
-                    :class="{ 'active': isOnManagePage }"><i
-                        class="fas fa-chart-line fa-fw me-3"></i><span><i class="bi bi-calendar2-week-fill"></i>  请假管理</span></a>
-                
-                
+                    :class="{ 'active': isOnManagePage }"><i class="fas fa-chart-line fa-fw me-3"></i><span><i
+                            class="bi bi-calendar2-week-fill"></i> 请假管理</span></a>
+
+
             </div>
         </div>
     </nav>
     <!-- Sidebar -->
 </template>
 <style scoped>
-body {
-    background-color: #fbfbfb;
-}
-
-@media (min-width: 991.98px) {
-    main {
-        padding-left: 240px;
+@media (min-width: 700px) {
+    .root {
+        background-color: #fbfbfb;
+        padding-top: 56px;
+        height: 100vh;
+        background: url("/static/login-background.jpg");
+        background-attachment: fixed;
     }
 }
+
+
+
+
+@media (min-width: 700px) {
+    .root-logged {
+        padding-left: 300px;
+    }
+}
+
+
 
 /* Sidebar */
 .sidebar {

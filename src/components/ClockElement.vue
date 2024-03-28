@@ -11,33 +11,41 @@ export default {
 </script>
 
 <template>
-        <div id="clock" class="space">
-            <p class="time">{{ currentTime.toLocaleTimeString() }}</p>
-            <p class="date">{{ currentTime.toLocaleDateString() }}</p>
-        </div>
+    <div id="clock" class="space">
+        <p class="time">{{ currentTime.toLocaleTimeString() }}</p>
+        <p class="date">{{ currentTime.toLocaleDateString() }}</p>
+    </div>
 </template>
 
 
 
 <style scoped>
-.space {
-    padding-left: 300px;
-    padding-top: 56px;
+@media (min-width: 600px) {
+    .space {
+        padding-left: 300px;
+        padding-top: 56px;
+    }
 }
-html,body {
+
+
+html,
+body {
     height: 100%;
 }
+
 body {
     background: #0f3854;
-    background: radial-gradient(ellipse at center,  #0a2e38  0%, #000000 70%);
+    background: radial-gradient(ellipse at center, #0a2e38 0%, #000000 70%);
     background-size: 100%;
 }
+
 p {
     margin: 0;
     padding: 0;
 }
+
 #clock {
-    font-family: Consolas ,Calibri, monospace;
+    font-family: Consolas, Calibri, monospace;
     color: #ffffff;
     text-align: center;
     position: absolute;
@@ -45,16 +53,36 @@ p {
     top: 50%;
     transform: translate(-50%, -50%);
     color: #daf6ff;
-    text-shadow: 0 0 20px rgba(10, 175, 230, 1),  0 0 20px rgba(10, 175, 230, 0);
-    .time {
-        letter-spacing: 0.05em;
-        font-size: 240px;
-        padding: 5px 0;
+    text-shadow: 0 0 20px rgba(10, 175, 230, 1), 0 0 20px rgba(10, 175, 230, 0);
+
+    @media only screen and (max-width: 600px) {
+        .time {
+            letter-spacing: 0.05em;
+            font-size: 60px;
+            padding: 5px 0;
+        }
+
+        .date {
+            letter-spacing: 0.1em;
+            font-size: 30px;
+        }
     }
-    .date {
-        letter-spacing: 0.1em;
-        font-size: 72px;
+
+    @media (min-width: 600px) {
+        .time {
+            letter-spacing: 0.05em;
+            font-size: 240px;
+            padding: 5px 0;
+        }
+
+        .date {
+            letter-spacing: 0.1em;
+            font-size: 72px;
+        }
     }
+
+
+
     .text {
         letter-spacing: 0.1em;
         font-size: 12px;

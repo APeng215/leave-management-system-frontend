@@ -1,5 +1,6 @@
 <script>
 import FetchHelper from '../js/util/FetchHelper';
+import { excelParser } from '../js/util/excel-parser'
 export default {
     mounted() {
         this.requestLeaveInfos();
@@ -7,6 +8,7 @@ export default {
     },
     data() {
         return {
+            filter: "",
             test: 1,
             user: {
                 name: null,
@@ -26,25 +28,31 @@ export default {
             },
             leaveRequestTable: {
                 fields: [
-                    { key: "name", label: "申请人" },
-                    { key: "username", label: "学号/工号" },
-                    { key: "type", label: "请假类型" },
-                    { key: "beginDate", label: "开始日期" },
-                    { key: "endDate", label: "结束日期" },
-                    { key: "reason", label: "请假原因" },
-                    { key: "approvalStatus", label: "审批状态" },
-                    { key: "createTime", label: "创建时间" },
-                    { key: "updateTime", label: "更新时间" },
-                    { key: "operation", label: "操作" }
+                    { key: "name", label: "申请人", sortable: true },
+                    { key: "username", label: "学号/工号", sortable: true },
+                    { key: "type", label: "请假类型", sortable: true },
+                    { key: "beginDate", label: "开始日期", sortable: true },
+                    { key: "endDate", label: "结束日期", sortable: true },
+                    { key: "reason", label: "请假原因", sortable: true },
+                    { key: "approvalStatus", label: "审批状态", sortable: true },
+                    { key: "createTime", label: "创建时间", sortable: true },
+                    { key: "updateTime", label: "更新时间", sortable: true },
+                    { key: "operation", label: "操作", sortable: true }
                 ],
                 items: []
             }
         };
     },
     methods: {
+        exportXls() {
+            excelParser().exportDataFromJSON(this.leaveRequestTable.items, "请假表", "xls");
+        },
+        clearFilter() {
+            this.filter = "";
+        },
         async requestReject(event) {
             const targetUsername = event.currentTarget.getAttribute("data-username");
-            const result = await FetchHelper.fetch("POST", "http://localhost:8081/backend/requestLeaveOperation", {
+            const result = await FetchHelper.fetch("POST", "/requestLeaveOperation", {
                 operation: "REJECT",
                 targetUsername: targetUsername
             });
@@ -52,7 +60,7 @@ export default {
         },
         async requestRevoke(event) {
             const targetUsername = event.currentTarget.getAttribute("data-username");
-            const result = await FetchHelper.fetch("POST", "http://localhost:8081/backend/requestLeaveOperation", {
+            const result = await FetchHelper.fetch("POST", "/requestLeaveOperation", {
                 operation: "REVOKE",
                 targetUsername: targetUsername
             });
@@ -60,14 +68,14 @@ export default {
         },
         async requestApprove(event) {
             const targetUsername = event.currentTarget.getAttribute("data-username");
-            const result = await FetchHelper.fetch("POST", "http://localhost:8081/backend/requestLeaveOperation", {
+            const result = await FetchHelper.fetch("POST", "/requestLeaveOperation", {
                 operation: "APPROVE",
                 targetUsername: targetUsername
             });
             this.requestLeaveInfos();
         },
         async requestUserInfo() {
-            const result = await FetchHelper.fetch("GET", "http://localhost:8081/backend/requestUserInfo");
+            const result = await FetchHelper.fetch("GET", "/requestUserInfo");
             this.user = result;
         },
         calculateDuration() {
@@ -90,7 +98,7 @@ export default {
             this.leaveRequest.duration = daysDiff + 1;
         },
         async requestLeaveInfos() {
-            const result = await FetchHelper.fetch("GET", "http://localhost:8081/backend/requestLeaveInfo");
+            const result = await FetchHelper.fetch("GET", "/requestLeaveInfo");
             this.leaveRequestTable.items = [];
             for (let item of result) {
                 this.leaveRequestTable.items.push(item);
@@ -100,14 +108,14 @@ export default {
             // Close modal
             this.$refs.modalCloseButton.click();
             // Send logging information
-            const result = await FetchHelper.fetch("POST", "http://localhost:8081/backend/leaveRequest", this.leaveRequest);
+            const result = await FetchHelper.fetch("POST", "/leaveRequest", this.leaveRequest);
             this.requestLeaveInfos();
         },
         async modifyLeaveRequest() {
             // Close modal
             this.$refs.modalCloseButton2.click();
             // Send logging information
-            const result = await FetchHelper.fetch("POST", "http://localhost:8081/backend/modifyRequest", this.leaveRequest);
+            const result = await FetchHelper.fetch("POST", "/modifyRequest", this.leaveRequest);
             this.requestLeaveInfos();
         },
 
@@ -117,27 +125,53 @@ export default {
 <style scoped>
 .white-background {
     background-color: #ffffff;
+    margin-top: 100px;
+    margin-left: 30px;
+    margin-right: 30px;
     /* White color */
 }
 
-.root {
-    padding-left: 300px;
-    background: url("/static/login-background.jpg")
+html {
+    padding-top: 50px;
+    background: url("/static/login-background.jpg");
+    background-attachment: fixed;
 }
 </style>
 
 
 <template>
-    <div class="d-flex justify-content-center align-items-center flex-column vh-100 space root">
+    <div class="d-flex justify-content-center align-items-center flex-column space manage-root">
         <div class="d-flex justify-content-center align-items-center flex-column">
 
             <div class="p-3 border border-primary rounded d-flex flex-column white-background shadow">
-                <div class="mb-3 d-flex justify-content-center">
+                <div class="mb-3 d-flex justify-content-between align-items-center">
+
                     <!-- Button trigger modal -->
                     <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal"
                         data-bs-target="#leaveRequest">
-                        申请请假  <i class="bi bi-plus-circle"></i>
+                        申请请假 <i class="bi bi-plus-circle"></i>
                     </button>
+                    <div class="input-group w-25">
+                        <span class="input-group-text" id="basic-addon1"><i class="bi bi-search"></i>&nbsp;搜索</span>
+                        <input type="text" class="form-control" placeholder="请输入" aria-label="Username"
+                            aria-describedby="basic-addon1" v-model="filter">
+                        <button class="btn btn-outline-secondary" type="button" id="button-addon2" :disabled="filter == ''"
+                            @click="clearFilter">清空</button>
+                    </div>
+                    <!-- <div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault1">
+                            <label class="form-check-label" for="flexSwitchCheckDefault1">只显示待审批请假</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault2">
+                            <label class="form-check-label" for="flexSwitchCheckDefault2">只显示自己的请假</label>
+                        </div>
+                    </div> -->
+
+                    <button type="button" class="btn btn-success" @click="exportXls">导出请假表 <i
+                            class="bi bi-box-arrow-down"></i></button>
+
                     <!-- Modal For Submit -->
                     <div class="modal fade" id="leaveRequest" tabindex="-1" aria-labelledby="exampleModalLabel"
                         aria-hidden="true" ref="leaveRequestModal">
@@ -258,17 +292,18 @@ export default {
                 <!-- Table -->
                 <div class="">
                     <b-table responsive bordered striped hover :fields="leaveRequestTable.fields"
-                        :items="leaveRequestTable.items">
+                        :items="leaveRequestTable.items" label-sort-asc="" label-sort-desc="" label-sort-clear=""
+                        stacked="sm" :filter="filter">
                         <template #cell(operation)="data">
                             <button class="btn btn-success mx-1" :data-username="data.item.username"
                                 v-if="user.duty == '辅导员' && data.item.approvalStatus == '待审批'"
                                 @click="requestApprove($event)">
-                                批准  <i class="bi bi-check2-circle"></i>
+                                批准 <i class="bi bi-check2-circle"></i>
                             </button>
                             <button class="btn btn-danger mx-1" :data-username="data.item.username"
                                 v-if="user.duty == '辅导员' && data.item.approvalStatus == '待审批'"
                                 @click="requestReject($event)">
-                                拒绝  <i class="bi bi-x-circle"></i>
+                                拒绝 <i class="bi bi-x-circle"></i>
                             </button>
                             <button class="btn btn-success mx-1" :data-username="data.item.username"
                                 v-if="user.duty == '辅导员' && data.item.approvalStatus == '已批准'" disabled>
@@ -279,17 +314,17 @@ export default {
                                 已拒绝
                             </button>
                             <button class="btn btn-warning mx-1" :data-username="data.item.username"
-                                v-if="user.username == data.item.username && data.item.approvalStatus != '已批准'" data-bs-toggle="modal"
-                        data-bs-target="#modifyRequest">
-                                修改  <i class="bi bi-pencil-square"></i>
+                                v-if="user.username == data.item.username && data.item.approvalStatus != '已批准'"
+                                data-bs-toggle="modal" data-bs-target="#modifyRequest">
+                                修改 <i class="bi bi-pencil-square"></i>
                             </button>
                             <button class="btn btn-danger mx-1" :data-username="data.item.username"
                                 v-if="user.username == data.item.username" @click="requestRevoke($event)">
-                                撤销  <i class="bi bi-backspace"></i>
+                                撤销 <i class="bi bi-backspace"></i>
                             </button>
                         </template>
                     </b-table>
-                    
+
                 </div>
             </div>
         </div>

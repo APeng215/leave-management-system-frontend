@@ -8,15 +8,12 @@ export default {
 }
 </script>
 <template>
-    <div class="home-space home white-background d-flex justify-content-center align-items-top vh-100">
+    <div class="home white-background d-flex justify-content-center vh-100 w-100">
         <ClockElement></ClockElement>
     </div>
 </template>
 <style scoped>
-.home-space {
-    padding-left: 300px;
-    padding-top: 56px;
-}
+
 
 img {
     position: fixed;

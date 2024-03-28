@@ -3,6 +3,9 @@ import { BButton } from 'bootstrap-vue';
 import { router } from '../js/router'
 import FetchHelper from '../js/util/FetchHelper'
 export default {
+    created() {
+        this.cacheKey = +new Date();
+    },
     props: {
         logged: {
             type: Boolean,
@@ -11,7 +14,8 @@ export default {
     },
     data() {
         return {
-            user:{
+            cacheKey: +new Date(),
+            user: {
                 name: ""
             },
             oldPassword: "",
@@ -19,27 +23,30 @@ export default {
             newPasswordForConfirm: "",
 
             passwordUnmatched: false,
+
+            backendIp: FetchHelper.backEndIp
         }
     },
     computed: {
         oldPasswordState() {
-            if(this.oldPassword.length !=0) {
+            if (this.oldPassword.length != 0) {
                 return true;
             }
             return false;
         },
         newPasswordState() {
-            if(this.newPassword.length >= 6) {
+            if (this.newPassword.length >= 6) {
                 return true;
             }
             return false;
         },
         newPasswordForConfirmState() {
-            if(this.newPasswordForConfirm.length >= 6) {
+            if (this.newPasswordForConfirm.length >= 6) {
                 return true;
             }
             return false;
         },
+
 
     },
     methods: {
@@ -51,8 +58,11 @@ export default {
                 router.push("/login");
             }
         },
+        updateImgUrl() {
+            this.cacheKey = +new Date();
+        },
         onLogoutClicked() {
-            FetchHelper.fetch("GET", "http://localhost:8081/backend/logout");
+            FetchHelper.fetch("GET", "/logout");
             this.$emit("logout");
         },
         async tryChangePassword(bvModalEvent) {
@@ -61,7 +71,7 @@ export default {
                 this.passwordUnmatched = true;
                 return;
             }
-            const result = await FetchHelper.fetch("POST", "http://localhost:8081/backend/changePassword", { oldPassword: this.oldPassword, newPassword: this.newPassword });
+            const result = await FetchHelper.fetch("POST", "/changePassword", { oldPassword: this.oldPassword, newPassword: this.newPassword });
             console.log(result);
             if (result.changeSucceed == true) {
                 this.$emit("logout");
@@ -76,7 +86,7 @@ export default {
             this.passwordTooEasy = false;
         },
         async requestUserInfo() {
-            const result = await FetchHelper.fetch("GET", "http://localhost:8081/backend/requestUserInfo");
+            const result = await FetchHelper.fetch("GET", "/requestUserInfo");
             this.user.name = result.name;
         },
         goToPersonPage() {
@@ -88,17 +98,27 @@ export default {
 <template>
     <nav class="navbar fixed-top shadow" data-bs-theme="dark">
         <div class="container-fluid">
-            <a href="#" class="navbar-brand"><i class="bi bi-window-sidebar"></i>  请假管理系统</a>
-            <div class="nav-item d-flex ms-auto">
+            <a href="#" class="navbar-brand" @click="onMainPageClicked"><i class="bi bi-window-sidebar"></i> 请假管理系统</a>
+            <router-link class="nav-link text-white" v-if="logged" to="/manage">请假管理</router-link>
+            <div class="nav-item d-flex align-items-center ms-auto">
                 <router-link class="nav-link text-white" v-if="!logged" to="/login">登录</router-link>
-                <a class="nav-link text-white me-4" href="" v-if="logged" @click.prevent="goToPersonPage"><i class="bi bi-person-circle"></i>  {{this.user.name}}</a>
-                <a class="nav-link text-white" href="" v-if="logged" @click="onLogoutClicked">注销  <i class="bi bi-box-arrow-right"></i></a>
+                <img v-if="logged" class="head-sculpture me-2" :src="backendIp + '/getImg' + '?rnd=' + cacheKey" ref="head2">
+                <a class="nav-link text-white me-4" href="" v-if="logged" @click.prevent="goToPersonPage">{{ this.user.name
+                }}</a>
+                <a class="nav-link text-white" href="" v-if="logged" @click="onLogoutClicked">注销 <i
+                        class="bi bi-box-arrow-right"></i></a>
             </div>
         </div>
     </nav>
 </template>
-<style>
+<style scoped>
 .navbar {
-    background-color:rgb(28, 118, 198)
+    background-color: rgb(28, 118, 198)
+}
+
+.head-sculpture {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
 }
 </style>

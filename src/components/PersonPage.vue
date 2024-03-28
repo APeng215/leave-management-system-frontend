@@ -1,11 +1,20 @@
 <script>
 import FetchHelper from '../js/util/FetchHelper';
+import UploadImgElement from './UploadImgElement.vue';
 export default {
+    components: {
+        UploadImgElement,
+    },
+    created() {
+        this.cacheKey = +new Date();
+    },
     mounted() {
         this.requestUserInfo();
     },
     data() {
         return {
+            cacheKey: +new Date(),
+            backendIp: FetchHelper.backEndIp,
             user: {
                 name: null,
                 username: null,
@@ -24,9 +33,13 @@ export default {
         };
     },
     methods: {
+        updateImgUrl() {
+            this.cacheKey = +new Date();
+            this.$emit("urlUpdated");
+        },
 
         async requestUserInfo() {
-            const result = await FetchHelper.fetch("GET", "http://localhost:8081/backend/requestUserInfo");
+            const result = await FetchHelper.fetch("GET", "/requestUserInfo");
             this.user = result;
         },
         async tryChangePassword(bvModalEvent) {
@@ -35,7 +48,7 @@ export default {
                 this.passwordUnmatched = true;
                 return;
             }
-            const result = await FetchHelper.fetch("POST", "http://localhost:8081/backend/changePassword", { oldPassword: this.oldPassword, newPassword: this.newPassword });
+            const result = await FetchHelper.fetch("POST", "/changePassword", { oldPassword: this.oldPassword, newPassword: this.newPassword });
             console.log(result);
             if (result.changeSucceed == true) {
                 this.$emit("logout");
@@ -74,51 +87,78 @@ export default {
 }
 </script>
 <style scoped>
+@media (min-width: 700px) {
+    .person-root {
+        background: url("/static/login-background.jpg");
+        background-attachment: fixed;
 
-.root {
-    padding-left: 300px;
-    background: url("/static/login-background.jpg")
+    }
+}
+
+
+.white-background {
+    background-color: #ffffff;
+}
+
+.head-sculpture {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.mg {
+    margin-top: 100px;
+    margin-left: 30px;
+    margin-right: 30px;
 }
 </style>
 
 
 <template>
-    <div class="d-flex justify-content-center align-items-center flex-column vh-100 root">
-        <div class="d-flex justify-content-center align-items-center flex-column">
-            <button type="button" class="btn btn-danger btn-lg mb-3 shadow" @click="$bvModal.show('changePasswordModal')">
-                修改密码  <i class="bi bi-pencil-square"></i>
-            </button>
-            <b-modal id="changePasswordModal" cancel-title="取消" ok-title="确定修改" title="修改密码" @ok="tryChangePassword"
-                centered>
-                <b-form id="requestForm">
-                    <b-input-group class="mb-3" prepend="旧密码">
-                        <b-form-input type="password" v-model="oldPassword" :state="oldPasswordState"></b-form-input>
-                    </b-input-group>
-                    <div class="text-danger mb-3 d-flex justify-content-center" v-if="!oldPasswordState">
-                        请输入旧密码
-                    </div>
-                    <b-input-group class="mb-3 flex-colunm" prepend="新密码">
-                        <b-form-input type="password" v-model="newPassword" :state="newPasswordState"
-                            @focus="onChangingPasswordInputFocused"></b-form-input>
-                    </b-input-group>
-                    <div class="text-danger mb-3 d-flex justify-content-center" v-if="!newPasswordState">
-                        新密码长度至少为6
-                    </div>
+    <div class="d-flex justify-content-center align-items-center flex-column person-root">
+        <div class="d-flex justify-content-center align-items-center flex-column mg">
+            <div class="d-flex flex-row ">
+                <button type="button" class="btn btn-danger btn-lg m-3 shadow"
+                    @click="$bvModal.show('changePasswordModal')">
+                    修改密码 <i class="bi bi-pencil-square"></i>
+                </button>
+                <b-modal id="changePasswordModal" cancel-title="取消" ok-title="确定修改" title="修改密码" @ok="tryChangePassword"
+                    centered>
+                    <b-form id="requestForm">
+                        <b-input-group class="mb-3" prepend="旧密码">
+                            <b-form-input type="password" v-model="oldPassword" :state="oldPasswordState"></b-form-input>
+                        </b-input-group>
+                        <div class="text-danger mb-3 d-flex justify-content-center" v-if="!oldPasswordState">
+                            请输入旧密码
+                        </div>
+                        <b-input-group class="mb-3 flex-colunm" prepend="新密码">
+                            <b-form-input type="password" v-model="newPassword" :state="newPasswordState"
+                                @focus="onChangingPasswordInputFocused"></b-form-input>
+                        </b-input-group>
+                        <div class="text-danger mb-3 d-flex justify-content-center" v-if="!newPasswordState">
+                            新密码长度至少为6
+                        </div>
 
-                    <b-input-group class="mb-3" prepend="确认新密码" :invalid-feedback="newPasswordForConfirmInvalidFeedback">
-                        <b-form-input type="password" v-model="newPasswordForConfirm" :state="newPasswordForConfirmState"
-                            @focus="onChangingPasswordInputFocused"></b-form-input>
-                    </b-input-group>
-                    <div class="text-danger d-flex justify-content-center" v-if="passwordUnmatched">
-                        两次新密码不一致！
-                    </div>
+                        <b-input-group class="mb-3" prepend="确认新密码"
+                            :invalid-feedback="newPasswordForConfirmInvalidFeedback">
+                            <b-form-input type="password" v-model="newPasswordForConfirm"
+                                :state="newPasswordForConfirmState" @focus="onChangingPasswordInputFocused"></b-form-input>
+                        </b-input-group>
+                        <div class="text-danger d-flex justify-content-center" v-if="passwordUnmatched">
+                            两次新密码不一致！
+                        </div>
 
-                </b-form>
+                    </b-form>
 
-            </b-modal>
+                </b-modal>
+                <UploadImgElement @img-updated="updateImgUrl" class="m-3"></UploadImgElement>
+            </div>
+
             <!-- Pernsonal Infomation -->
             <div class="p-3 mb-3 border border-primary rounded d-flex flex-column white-background shadow">
-                <p class="fs-3 d-flex justify-content-center"><i class="bi bi-person-square"></i>&nbsp个人信息</p>
+                <p class="fs-3 d-flex justify-content-center"><img class="head-sculpture me-2"
+                        :src="backendIp + '/getImg' + '?rnd=' + cacheKey" ref="head1">
+                    &nbsp个人信息</p>
                 <div class="input-group mb-3">
                     <label class="input-group-text">姓名</label>
                     <input type="text" class="input-group-text" readonly :value="this.user.name">
