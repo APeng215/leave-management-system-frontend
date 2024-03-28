@@ -16,7 +16,7 @@
 
 ## 如何使用
 
-使用 shell 命令启动前端，需要配合后端使用。
+使用 shell 命令启动前端，需要配合[后端](https://github.com/APeng215/leave-management-system-backend)使用。
 
 ```sh
 npm install
