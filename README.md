@@ -18,8 +18,13 @@
 
 使用 shell 命令启动前端，需要配合[后端](https://github.com/APeng215/leave-management-system-backend)使用。
 
+1. 安装依赖：
 ```sh
 npm install
+```
+
+2. 开启服务:
+```shell
 npm start
 ```
 
